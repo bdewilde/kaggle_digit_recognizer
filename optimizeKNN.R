@@ -5,7 +5,7 @@
 library(FNN)    # Fast Nearest Neighbor Search Algorithms and Applications
 
 # load the data
-rawTrainData <- read.csv("train.csv", header=TRUE)#[1:10000,]
+rawTrainData <- read.csv("train.csv", header=TRUE)[1:1000,]
 #test <- read.csv("test.csv", header=TRUE)[1:1000,]
 
 # randomly permute row order of training dataset
@@ -22,28 +22,30 @@ cvCl <- cv[, 1]; cv <- cv[, -1]
 # get knn predictions for training set
 # compute fractional training error
 # for numK values of k
-numK <- 8
+numK <- 5
 trainErrs <- numeric(numK)
 for(i in 1:numK) {
-    for(alg in c("cover_tree", "kd_tree")) {
-        trainModel <- knn(train, train, trainCl, k=i, algorithm="cover_tree")
-        trainPreds <- as.numeric(levels(trainModel))[trainModel]
-        trainErr <- length(which(trainCl != trainPreds)) / length(trainPreds)
-        trainErrs[i] <- trainErr
-        }
+    print(paste("Train:", i))
+    trainModel <- (0:9)[knn(train, train, trainCl, k=i, algorithm="cover_tree")]
+    #trainPreds <- as.numeric(levels(trainModel))[trainModel]
+    trainPreds <- trainModel
+    trainErr <- length(which(trainCl != trainPreds)) / length(trainPreds)
+    trainErrs[i] <- trainErr
     }
 
 # repeat for cross-validation set
 cvErrs <- numeric(numK)
 for(i in 1:numK) {
-    cvModel <- knn(train, cv, trainCl, k=i, algorithm="cover_tree")
-    cvPreds <- as.numeric(levels(cvModel))[cvModel]
+    print(paste("CV:", i))
+    cvModel <- (0:9)[knn(train, cv, trainCl, k=i, algorithm="cover_tree")]
+    #cvPreds <- as.numeric(levels(cvModel))[cvModel]
+    cvPreds <- cvModel
     cvErr <- length(which(cvCl != cvPreds)) / length(cvPreds)
     cvErrs[i] <- cvErr
 }
 
 # plot training errors as a function of k
-plot(trainErrs, type='p', col='blue', ylim=c(0.0,0.11), pty="s",
+plot(trainErrs, type='p', col='blue', ylim=c(0.0,0.1), pty="s",
      xlab="Number of Nearest Neighbors", ylab="Fractional Error", main="Optimizing kNN Model")
 trainCurve <- loess(trainErrs ~ c(1:numK))
 lines(predict(trainCurve), col='blue', lwd=2)
