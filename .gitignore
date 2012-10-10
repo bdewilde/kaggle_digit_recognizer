@@ -4,3 +4,7 @@
 test.csv
 train.csv
 .DS_Store
+knn_benchmark.R
+knn_benchmark.csv
+rf_benchmark.R
+rf_benchmark.csv
