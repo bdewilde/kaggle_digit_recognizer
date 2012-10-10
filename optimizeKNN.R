@@ -5,7 +5,7 @@
 library(FNN)    # Fast Nearest Neighbor Search Algorithms and Applications
 
 # load the data
-rawTrainData <- read.csv("train.csv", header=TRUE)[1:1000,]
+rawTrainData <- read.csv("train.csv", header=TRUE)#[1:25000,]
 #test <- read.csv("test.csv", header=TRUE)[1:1000,]
 
 # randomly permute row order of training dataset
@@ -15,14 +15,23 @@ cv <- train[(1+(0.6*nrow(train))):nrow(train), ]   # 2 needed instead of 1 to av
 train <- train[1:(0.6*nrow(train)), ]
 
 # drop label columns for use in KNN
-trainCl <- train[, 1]; train <- train[, -1]
-cvCl <- cv[, 1]; cv <- cv[, -1]
+trainCl <- train[, 1]
+train <- train[, -1]
+cvCl <- cv[, 1]
+cv <- cv[, -1]
 
+# what about removing pixels with near zero variance? not good predictors...
+library(caret)
+badCols <- nearZeroVar(train)
+print(paste("Fraction of nearZeroVar columns:", length(badCols)/length(train)))
+train <- train[, -badCols]
+cv <- cv[, -badCols]
+            
 # fit knn model to training set
 # get knn predictions for training set
 # compute fractional training error
 # for numK values of k
-numK <- 5
+numK <- 6
 trainErrs <- numeric(numK)
 for(i in 1:numK) {
     print(paste("Train:", i))
