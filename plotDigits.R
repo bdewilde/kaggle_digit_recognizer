@@ -9,7 +9,7 @@ library(reshape2)
 train <- read.csv("train.csv", header=TRUE)
 
 # randomly sample nPlot training digits (rows) for plotting
-nPlot <- 16
+nPlot <- 9
 trainSamp <- train[sample(1:nrow(train), nPlot), ]
 
 # convert sampled row vectors into 28x28 numeric matrices
@@ -34,7 +34,7 @@ ggplot(melt(trainMats), aes(x=Var1, y=Var2, fill=value)) +
     facet_wrap(~ L1, ncol=sqrt(nPlot)) +
     geom_tile(aes(fill=value)) +
     coord_equal() +
-    scale_fill_gradient(low="white",high="black") +
+    scale_fill_gradient(low="black",high="white") +
     ggtitle("MINST Database of Hand-written Digits") +
     theme(axis.line=element_blank(), axis.text.x=element_blank(),
          axis.text.y=element_blank(), axis.ticks=element_blank(),
