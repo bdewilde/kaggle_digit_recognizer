@@ -6,6 +6,24 @@
 train <- read.csv("train.csv", header=TRUE)
 test <- read.csv("test.csv", header=TRUE)
 
+##############################
+# Weighted k-Nearest Neighbors
+library(kknn)
+
+# remove pixels with near zero variance -- not good predictors
+library(caret)
+badCols <- nearZeroVar(train[,-1])
+print(paste("Fraction of nearZeroVar columns:", round(length(badCols)/length(train),4)))
+train <- train[, -(badCols+1)]
+test <- test[, -badCols]
+
+# train the kknn model
+model <- kknn(as.factor(label) ~ ., train, test, k=9, kernel="triangular")
+results <- model$fitted.values
+
+# save the output as column vector
+write(as.numeric(levels(results))[results], file="kknn_submission.csv", ncolumns=1)
+
 ##########################################################
 # Fast Nearest Neighbor Search Algorithms and Applications
 library(FNN)
