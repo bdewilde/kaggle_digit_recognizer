@@ -1,18 +1,18 @@
 # Kaggle: Digit Recognizer
 # https://www.kaggle.com/c/digit-recognizer/data
+# optimize a knn model using the FNN implementation
 
-#library(class)   # "recommended" k-Nearest Neighbour Classification: TOO SLOW
-library(FNN)    # Fast Nearest Neighbor Search Algorithms and Applications
+# Fast Nearest Neighbor Search Algorithms and Applications
+library(FNN)
 
 # load the data
-rawTrainData <- read.csv("train.csv", header=TRUE)#[1:25000,]
-#test <- read.csv("test.csv", header=TRUE)[1:1000,]
+rawTrainData <- read.csv("train.csv", header=TRUE)[1:1000,]
 
-# randomly permute row order of training dataset
-train <- rawTrainData[sample(nrow(rawTrainData)), ]
-# then split up into training and cross-validation sets
-cv <- train[(1+(0.6*nrow(train))):nrow(train), ]   # 2 needed instead of 1 to avoid overlap row?
-train <- train[1:(0.6*nrow(train)), ]
+# randomly sample rows of training data
+indices <- sample(1:nrow(rawTrainData), trunc(0.6*nrow(rawTrainData)))
+# assign training and cross-validation sets to orthogonal sub-sets
+train <- rawTrainData[indices, ]
+cv <- rawTrainData[-indices, ]
 
 # drop label columns for use in KNN
 trainCl <- train[, 1]
@@ -26,12 +26,22 @@ badCols <- nearZeroVar(train)
 print(paste("Fraction of nearZeroVar columns:", length(badCols)/length(train)))
 train <- train[, -badCols]
 cv <- cv[, -badCols]
-            
+
+# what about centering and scaling? i.e. standardizing
+trainColMeans <- apply(train, 2, mean)
+trainColSD <- apply(train, 2, sd)
+train <- apply(train, 2, scale, center=TRUE, scale=TRUE)
+#cv <- apply(cv, 2, scale, center=trainColMeans, scale=trainColSD)
+#train <- apply(train, 2, scale, center=TRUE, scale=TRUE)
+#cv <- apply(cv, 2, scale, center=TRUE, scale=TRUE)
+cv <- sweep(cv, 2, trainColMeans, FUN="-")
+cv <- sweep(cv, 2, trainColSD, FUN="/")
+
 # fit knn model to training set
 # get knn predictions for training set
 # compute fractional training error
 # for numK values of k
-numK <- 6
+numK <- 10
 trainErrs <- numeric(numK)
 for(i in 1:numK) {
     print(paste("Train:", i))

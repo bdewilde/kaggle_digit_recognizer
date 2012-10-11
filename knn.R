@@ -2,12 +2,13 @@
 # https://www.kaggle.com/c/digit-recognizer/data
 # produce submission file with optimal knn model
 
-# Fast Nearest Neighbor Search Algorithms and Applications
-library(FNN)
-
 # load training and test datasets
 train <- read.csv("train.csv", header=TRUE)
 test <- read.csv("test.csv", header=TRUE)
+
+##########################################################
+# Fast Nearest Neighbor Search Algorithms and Applications
+library(FNN)
 
 # drop label columns for use in KNN
 trainCl <- train[, 1]
