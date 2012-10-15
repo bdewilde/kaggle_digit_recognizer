@@ -6,10 +6,49 @@ library(ggplot2)
 library(reshape2)
 
 # load training data
-train <- read.csv("train.csv", header=TRUE)
+train <- read.csv("train.csv", header=TRUE)[1:1000, ]
 
+# subset individual classes
+subsets <- list()
+rowMeans <- list()
+whitePixels <- list()
+for(digit in 0:9) {
+    d <- as.character(digit)
+    subsets[[d]] <- subset(train, train$label==as.character(digit))
+    rowMeans[[d]] <- rowMeans(subsets[[d]])
+    whitePixels[[d]] <- apply(subsets[[d]], 1, function(x) length(which(x=="0"))/length(x))
+    }
+boxplot(rowMeans)
+boxplot(whitePixels, ylab="Fraction of White Pixels")
+
+matricize <- function(vec) {
+    mat <- matrix(vec[-1], nrow=28, ncol=28, byrow=TRUE)
+    mat <- apply(mat, 1, as.numeric)
+    return(mat)
+    }
+
+getMinMaxRowsAndCols <- function(mat) {
+    cMeans <- which(colMeans(mat)!=0, arr.ind=TRUE)
+    rMeans <- which(rowMeans(mat)!=0, arr.ind=TRUE)
+    cMin <- min(cMeans); cMax <- max(cMeans)
+    rMin <- min(rMeans); rMax <- max(rMeans)
+    return(c(rMin, rMax, cMin, cMax))
+    }
+
+subsetMats <- list()
+minMaxRowsAndCols <- list()
+widths <- list()
+heights <- list()
+for(digit in 0:1) {
+    d <- as.character(digit)
+    subsetMats <- apply(subsets[[d]], 1, matricize)
+    print(dim(subsetMats))
+    #minMaxRowsAndCols <- apply(subsetMats, 1, getMinMaxRowsAndCols)
+}
+
+###########################################################
 # randomly sample nPlot training digits (rows) for plotting
-nPlot <- 9
+nPlot <- 1
 trainSamp <- train[sample(1:nrow(train), nPlot), ]
 
 # convert sampled row vectors into 28x28 numeric matrices
@@ -34,7 +73,7 @@ ggplot(melt(trainMats), aes(x=Var1, y=Var2, fill=value)) +
     facet_wrap(~ L1, ncol=sqrt(nPlot)) +
     geom_tile(aes(fill=value)) +
     coord_equal() +
-    scale_fill_gradient(low="black",high="white") +
+    scale_fill_gradient(low="white",high="black") +
     ggtitle("MINST Database of Hand-written Digits") +
     theme(axis.line=element_blank(), axis.text.x=element_blank(),
          axis.text.y=element_blank(), axis.ticks=element_blank(),
