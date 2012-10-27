@@ -8,9 +8,6 @@ colnames(a) <- c('x1','x2','class')
 colnames(b) <- c('x1','x2','class')
 train <- as.data.frame(rbind(a, b))
 
-library(lattice)
-with(train, xyplot(x2~x1, groups=class, col=c("gold", "darkorchid"), pch=19))
-
 px1 <- seq(from=min(train$x1), to=max(train$x1), by=0.05)
 px2 <- seq(from=min(train$x2), to=max(train$x2), by=0.05)
 test <- expand.grid(x1=px1, x2=px2)
@@ -22,6 +19,13 @@ model <- knn(train=train[,1:2], test=test, cl=train[,3], k=numK, prob=TRUE)
 prob <- attr(model, "prob")
 prob <- ifelse(model==1, prob, 1-prob)
 probMat <- matrix(prob, nrow=length(px1), ncol=length(px2))
+
+# plot training set only
+plot(a, col="gold", pch=20, main="Binary kNN Classification Training Set",
+     axes=FALSE, xlim=c(min(px1),max(px1)), ylim=c(min(px2), max(px2)),
+     mgp=c(1,1,0), cex.lab=1.5)
+points(b, col="darkorchid", pch=20)
+box()
 
 # plot the results
 contour(px1, px2, probMat, levels=0.5, lwd=2, labels="", axes=FALSE,

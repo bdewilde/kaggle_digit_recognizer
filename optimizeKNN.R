@@ -23,7 +23,7 @@ cv <- cv[, -1]
 # what about removing pixels with near zero variance? not good predictors...
 library(caret)
 badCols <- nearZeroVar(train)
-print(paste("Fraction of nearZeroVar columns:", length(badCols)/length(train)))
+print(paste("Fraction of nearZeroVar columns:", round(length(badCols)/length(train),4)))
 train <- train[, -badCols]
 cv <- cv[, -badCols]
 
