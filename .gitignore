@@ -8,3 +8,6 @@ knn_benchmark.R
 knn_benchmark.csv
 rf_benchmark.R
 rf_benchmark.csv
+*.psd
+*.pdf
+*.png
